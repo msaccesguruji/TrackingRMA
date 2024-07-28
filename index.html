@@ -70,6 +70,7 @@
       messageDiv.text('');
       const trackingNumber = $('#trackingNumber').val();
       if (trackingNumber) {
+        $('#trackingNumber').val('');
         fetch(`${googleAppsScriptUrl}?trackingNumber=${trackingNumber}`)
           .then(response => response.json())
           .then(handleResponse)
