@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+    .button {
+      background-color: #4CAF50; /* Green */
+      border: none;
+      color: white;
+      padding: 10px 24px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+    .button1 {border-radius: 12px;}
+    </style>
+  </head>
+  <!--##JAVASCRIPT FUNCTIONS ---------------------------------------------------- -->
+    <script>
+      function myFunction() {
+        // Get the text field
+        var copyText = document.getElementById("authURL");
+        // Select the text field
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+        // Copy the text inside the text field
+        navigator.clipboard.writeText(copyText.value);
+        // Alert the copied text
+        alert("Text Copied");
+      }
+    </script>
+    <!--##JAVASCRIPT FUNCTIONS ~ END ---------------------------------------------------- -->     
+  <body>
+    <!-- The text field -->
+    <!-- <input type="text" value="<?!= authURL ?>" id="authURL"> -->
+    <textarea id="authURL" cols="100" rows="8"><?!= authURL ?></textarea>
+    <!-- The button used to copy the text -->
+    <button class="button button1" onclick="myFunction()">Copy text</button>
+  </body>
+</html>
