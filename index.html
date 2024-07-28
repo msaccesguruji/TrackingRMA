@@ -43,11 +43,11 @@
   </style>
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script>
-    
-     $(document).ready(function() {
+    const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbwnyWjgcjMIHK9A3sXMJdzO1zztFmjzTeltzAY-n-0NG76QA0_bZtxhieMaIFhfFWsa/exec'; // Replace with your Google Apps Script web app URL
+
+    $(document).ready(function() {
       // Auto-focus the input field when the page loads
-      $('#trackingNumber').focus();
-      
+      $('#trackingNumber').focus();      
       // Detect when Enter key is pressed
       $('#trackingNumber').on('keypress', function(e) {
         if (e.which == 13) {
@@ -70,7 +70,10 @@
       messageDiv.text('');
       const trackingNumber = $('#trackingNumber').val();
       if (trackingNumber) {
-        google.script.run.withSuccessHandler(handleResponse).getTrackingData(trackingNumber);
+        fetch(`${googleAppsScriptUrl}?trackingNumber=${trackingNumber}`)
+          .then(response => response.json())
+          .then(handleResponse)
+          .catch(error => showErrorMessage('Error: ' + error));
       } else {
         showErrorMessage('Kindly enter Tracking number');
       }
@@ -80,8 +83,7 @@
       const messageDiv = $('#errorMessage');
       messageDiv.text('');
       if (response.found) {
-        $('#trackingNumber').val('');
-        const byteCharacters = atob(response.pdfBlob);
+        const byteCharacters = atob(response.pdfContent);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
           byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -91,7 +93,7 @@
         const blobUrl = URL.createObjectURL(blob);
         window.open(blobUrl, '_blank');
       } else {
-        showErrorMessage('Invalid Tracking or Tracking not exist');
+        showErrorMessage('Tracking not found');
       }
     }
   </script>
@@ -99,15 +101,15 @@
 <body>
   <div class="container">
     <div class="row justify-content-center mt-5">
-      <div class="col-md-6"> 
-        <h3 class="text-center">Track Your Package</h3>
+      <div class="col-md-6 col-sm-12">     
+        <h3 class="text-center title">Track Your Package</h3>
         <div class="form-group">
           <input type="text" id="trackingNumber" class="form-control" placeholder="Enter Tracking Number" required>
-          <p id="errorMessage" class="error-message"></p>
         </div>
         <div class="form-group text-center">
-          <button class="btn btn-primary" onclick="searchTrackingNumber()">Search</button>
+          <button class="btn btn-primary btn-block" onclick="searchTrackingNumber()">Search</button>
         </div> 
+        <p id="errorMessage" class="error-message"></p>
       </div>
     </div>
   </div>
