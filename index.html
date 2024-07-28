@@ -70,7 +70,6 @@
       messageDiv.text('');
       const trackingNumber = $('#trackingNumber').val();
       if (trackingNumber) {
-        $('#trackingNumber').val('');
         fetch(`${googleAppsScriptUrl}?trackingNumber=${trackingNumber}`)
           .then(response => response.json())
           .then(handleResponse)
@@ -92,7 +91,8 @@
         const byteArray = new Uint8Array(byteNumbers);
         const blob = new Blob([byteArray], {type: 'application/pdf'});
         const blobUrl = URL.createObjectURL(blob);
-        window.open(blobUrl, '_blank');
+        window.open(blobUrl, '_blank');        
+        $('#trackingNumber').val('');
       } else {
         showErrorMessage('Tracking not found');
       }
