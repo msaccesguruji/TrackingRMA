@@ -1,43 +1,115 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-    <style>
-    .button {
-      background-color: #4CAF50; /* Green */
-      border: none;
-      color: white;
-      padding: 10px 24px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin: 4px 2px;
-      cursor: pointer;
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Tracking Number Search</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
     }
-    .button1 {border-radius: 12px;}
-    </style>
-  </head>
-  <!--##JAVASCRIPT FUNCTIONS ---------------------------------------------------- -->
-    <script>
-      function myFunction() {
-        // Get the text field
-        var copyText = document.getElementById("authURL");
-        // Select the text field
-        copyText.select();
-        copyText.setSelectionRange(0, 99999); // For mobile devices
-        // Copy the text inside the text field
-        navigator.clipboard.writeText(copyText.value);
-        // Alert the copied text
-        alert("Text Copied");
+    .error-message {
+      color: red;
+      font-weight: bold;
+      display: none; /* Hide initially */
+    }
+    .title {
+      flex-grow: 1;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: #007bff; /* Bootstrap primary color or any color you like */
+    }
+    .content-container {
+      padding: 20px;
+      height: 100%;
+      overflow-y: auto; /* Enable vertical scroll if content exceeds height */
+    }
+    .content {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 768px) {
+      .title {
+        font-size: 1.25rem; /* Adjust size for smaller screens */
       }
-    </script>
-    <!--##JAVASCRIPT FUNCTIONS ~ END ---------------------------------------------------- -->     
-  <body>
-    <!-- The text field -->
-    <!-- <input type="text" value="<?!= authURL ?>" id="authURL"> -->
-    <textarea id="authURL" cols="100" rows="8"><?!= authURL ?></textarea>
-    <!-- The button used to copy the text -->
-    <button class="button button1" onclick="myFunction()">Copy text</button>
-  </body>
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script>
+    
+     $(document).ready(function() {
+      // Auto-focus the input field when the page loads
+      $('#trackingNumber').focus();
+      
+      // Detect when Enter key is pressed
+      $('#trackingNumber').on('keypress', function(e) {
+        if (e.which == 13) {
+          searchTrackingNumber();
+        }
+      });
+    });
+
+    function showErrorMessage(message) {
+      const messageDiv = $('#errorMessage');
+      messageDiv.text(message).fadeIn('slow', function() {
+        setTimeout(function() { 
+          messageDiv.fadeOut('slow'); 
+        }, 2000); // time in milliseconds
+      });
+    }
+
+    function searchTrackingNumber() {
+      const messageDiv = $('#errorMessage');
+      messageDiv.text('');
+      const trackingNumber = $('#trackingNumber').val();
+      if (trackingNumber) {
+        google.script.run.withSuccessHandler(handleResponse).getTrackingData(trackingNumber);
+      } else {
+        showErrorMessage('Kindly enter Tracking number');
+      }
+    }
+
+    function handleResponse(response) {
+      const messageDiv = $('#errorMessage');
+      messageDiv.text('');
+      if (response.found) {
+        $('#trackingNumber').val('');
+        const byteCharacters = atob(response.pdfBlob);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], {type: 'application/pdf'});
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+      } else {
+        showErrorMessage('Invalid Tracking or Tracking not exist');
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center mt-5">
+      <div class="col-md-6"> 
+        <h3 class="text-center">Track Your Package</h3>
+        <div class="form-group">
+          <input type="text" id="trackingNumber" class="form-control" placeholder="Enter Tracking Number" required>
+          <p id="errorMessage" class="error-message"></p>
+        </div>
+        <div class="form-group text-center">
+          <button class="btn btn-primary" onclick="searchTrackingNumber()">Search</button>
+        </div> 
+      </div>
+    </div>
+  </div>
+</body>
 </html>
